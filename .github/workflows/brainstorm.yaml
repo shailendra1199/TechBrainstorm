@@ -1,0 +1,25 @@
+name: Brainstorm-Assignment 
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $EC2_INSTANCE_IP >> ~/.ssh/known_hosts
+
+    - name: Install software on AWS-EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa ubuntu@$EC2_INSTANCE_IP 'bash -s' < setup-script.sh
